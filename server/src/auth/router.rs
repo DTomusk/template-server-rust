@@ -1,9 +1,9 @@
-use axum::{routing::get, Router};
+use axum::{routing::post, Router};
 
 use super::handlers;
 
 pub fn router() -> Router {
     Router::new()
-        .route("/register", get(handlers::register))
-        .route("/login", get(handlers::login))
+        .route("/register", post(handlers::register))
+        .route("/login", post(handlers::login))
 }
