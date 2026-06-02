@@ -12,3 +12,6 @@ The server can be run locally via Docker. `Dockerfile` contains instructions to 
 
 ## Environment variables 
 Env variables are stored locally in `.env`. `.env.example` is a copy of `.env` that is stored in source control and gives example values of env variables.
+
+## Logging 
+We use `trace` and `tower_http` to log
