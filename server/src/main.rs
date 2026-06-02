@@ -1,7 +1,7 @@
-use axum::{routing::get,Router,};
 use std::env;
 use tracing::info;
-use tower_http::trace::TraceLayer;
+
+mod app;
 
 // tokio multithreaded runtime needs to be enabled, use full features for simplicity
 #[tokio::main]
@@ -10,9 +10,8 @@ async fn main() {
         // From default env uses RUST_LOG env variable to set log level
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .init();
-    let app = Router::new()
-        .route("/", get(handler))
-        .layer(TraceLayer::new_for_http());
+
+    let app = app::build();
 
     let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
     let addr = format!("0.0.0.0:{}", port);
@@ -25,8 +24,4 @@ async fn main() {
     axum::serve(listener, app)
         .await
         .expect("server failed");
-}
-
-async fn handler() -> &'static str {
-    "Hello, World!"
 }
