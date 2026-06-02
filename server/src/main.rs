@@ -1,6 +1,7 @@
 use tracing::info;
 
 mod app;
+mod auth;
 mod config;
 mod feature;
 
