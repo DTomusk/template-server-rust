@@ -2,6 +2,7 @@ use std::env;
 use tracing::info;
 
 mod app;
+mod feature;
 
 // tokio multithreaded runtime needs to be enabled, use full features for simplicity
 #[tokio::main]
