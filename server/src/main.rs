@@ -1,8 +1,12 @@
 use std::sync::Arc;
-
+use sqlx::postgres::PgPoolOptions;
 use tracing::info;
 
-use crate::{app_state::AppState, auth::service::AuthService};
+use crate::{
+    app_state::AppState, 
+    auth::service::AuthService,
+    repos::user_repo::UserRepo,
+};
 
 mod app;
 mod app_state;
@@ -14,7 +18,7 @@ mod repos;
 
 // tokio multithreaded runtime needs to be enabled, use full features for simplicity
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load environment variables from .env
     dotenvy::dotenv().ok();
 
@@ -23,8 +27,17 @@ async fn main() {
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .init();
 
-    // user_repo will want a db pool in the future
-    let user_repo = repos::user_repo::UserRepo;
+    let config = config::Config::from_env()?;
+
+    let db_pool = PgPoolOptions::new()
+        .max_connections(10)
+        .connect(&config.database_url)
+        .await
+        .expect("Failed to connect to database");
+
+    // clone db_pool (which is an Arc internally)
+    // this allows multiple repos sharing the same pool
+    let user_repo = UserRepo::new(db_pool.clone());
 
     let auth_service = Arc::new(
         AuthService::new(user_repo)
@@ -36,15 +49,12 @@ async fn main() {
 
     let app = app::build(app_state);
 
-    let config = config::Config::from_env();
     let addr = format!("0.0.0.0:{}", config.port);
-    let listener = tokio::net::TcpListener::bind(&addr)
-        .await
-        .expect("failed to bind to address");
+    let listener = tokio::net::TcpListener::bind(&addr).await?;
 
     info!(%addr, "server is starting");
 
-    axum::serve(listener, app)
-        .await
-        .expect("server failed");
+    axum::serve(listener, app).await?;
+
+    Ok(())
 }

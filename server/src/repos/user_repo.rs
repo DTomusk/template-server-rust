@@ -1,6 +1,13 @@
-pub struct UserRepo;
+use sqlx::PgPool;
+
+pub struct UserRepo {
+    pub db: PgPool
+}
 
 impl UserRepo {
+    pub fn new(db: PgPool) -> Self {
+        Self { db }
+    }
     pub async fn create_user(
         &self,
         username: &str, 
