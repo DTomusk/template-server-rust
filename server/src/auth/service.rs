@@ -6,6 +6,9 @@ pub struct AuthService {
 }
 
 impl AuthService {
+    pub fn new(user_repo: UserRepo) -> Self {
+        Self { user_repo }
+    }
     pub async fn register_user(
         &self,
         command: RegisterUserCommand,

@@ -1,11 +1,11 @@
-use axum::Json;
+use axum::{Json, extract::State};
 use validator::Validate;
 use super::{
     dto::{LoginRequest, RegisterRequest}, 
     model::RegisterUserCommand, 
-    service::AuthService,
     errors::AuthError,
 };
+use crate::app_state::AppState;
 
 #[utoipa::path(
     post,
@@ -18,7 +18,10 @@ use super::{
     )
 )]
 // Result is an enum that can be either Ok or Err
-pub async fn register(Json(req): Json<RegisterRequest>) -> Result<&'static str, AuthError> {
+pub async fn register(
+    State(app_state): State<AppState>,
+    Json(req): Json<RegisterRequest>,
+) -> Result<&'static str, AuthError> {
     // Validate request
     // validate returns ValidationErrors, we map that to a string for now
     // if no error, simply continue
@@ -30,14 +33,9 @@ pub async fn register(Json(req): Json<RegisterRequest>) -> Result<&'static str, 
         password: req.password,
     };
 
-    // Service has no state at the moment, so we can just instantiate here
-    let service = AuthService {
-        user_repo: crate::repos::user_repo::UserRepo,
-    };
-
     // Call service method
     // ? says to return early if error
-    service.register_user(command).await?;
+    app_state.auth_service.register_user(command).await?;
 
     Ok("user registered")
 }
@@ -52,6 +50,9 @@ pub async fn register(Json(req): Json<RegisterRequest>) -> Result<&'static str, 
         (status = 400, description = "Invalid request")
     )
 )]
-pub async fn login(Json(_req): Json<LoginRequest>) -> Result<&'static str, String> {
+pub async fn login(
+    State(_app_state): State<AppState>,
+    Json(_req): Json<LoginRequest>
+) -> Result<&'static str, String> {
     Ok("login not implemented")
 }

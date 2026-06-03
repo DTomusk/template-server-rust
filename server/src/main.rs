@@ -1,6 +1,11 @@
+use std::sync::Arc;
+
 use tracing::info;
 
+use crate::{app_state::AppState, auth::service::AuthService};
+
 mod app;
+mod app_state;
 mod auth;
 mod config;
 mod feature;
@@ -18,7 +23,18 @@ async fn main() {
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .init();
 
-    let app = app::build();
+    // user_repo will want a db pool in the future
+    let user_repo = repos::user_repo::UserRepo;
+
+    let auth_service = Arc::new(
+        AuthService::new(user_repo)
+    );
+
+    let app_state = AppState {
+        auth_service,
+    };
+
+    let app = app::build(app_state);
 
     let config = config::Config::from_env();
     let addr = format!("0.0.0.0:{}", config.port);
