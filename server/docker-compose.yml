@@ -13,6 +13,17 @@ services:
       test: ["CMD-SHELL", "pg_isready -U user -d server_db"]
       interval: 10s
       retries: 5
+
+  migrate:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.migrate
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+
   api:
     build:
       context: .
@@ -24,8 +35,8 @@ services:
     ports:
       - "${HOST_PORT:-8080}:8080"
     depends_on:
-      db:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
 volumes:
   server_db_data:

@@ -12,7 +12,7 @@ RUN cargo build --release
 # Now copy the actual source code and build the application
 COPY src ./src
 # Use touch to uncache main.rs
-RUN touch src/main.rs && cargo build --release
+RUN touch src/main.rs && cargo build --release --bin server
 
 # Runtime
 FROM debian:bookworm-slim
