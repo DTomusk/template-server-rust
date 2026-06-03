@@ -1,8 +1,11 @@
 use axum::Json;
 use validator::Validate;
-use super::dto::{LoginRequest, RegisterRequest};
-use super::model::RegisterUserCommand;
-use super::service::AuthService;
+use super::{
+    dto::{LoginRequest, RegisterRequest}, 
+    model::RegisterUserCommand, 
+    service::AuthService,
+    errors::AuthError,
+};
 
 #[utoipa::path(
     post,
@@ -14,9 +17,11 @@ use super::service::AuthService;
         (status = 400, description = "Invalid request")
     )
 )]
-pub async fn register(Json(req): Json<RegisterRequest>) -> Result<&'static str, String> {
+pub async fn register(Json(req): Json<RegisterRequest>) -> Result<&'static str, AuthError> {
     // Validate request
-    req.validate().map_err(|e| e.to_string())?;
+    // validate returns ValidationErrors, we map that to a string for now
+    // if no error, simply continue
+    req.validate().map_err(|e| AuthError::ValidationError(e.to_string()))?;
 
     // Construct command
     let command = RegisterUserCommand {
@@ -28,6 +33,7 @@ pub async fn register(Json(req): Json<RegisterRequest>) -> Result<&'static str, 
     let service = AuthService;
 
     // Call service method
+    // ? says to return early if error
     service.register_user(command).await?;
 
     Ok("user registered")
