@@ -1,4 +1,5 @@
 use axum::Json;
+use validator::Validate;
 use super::dto::{LoginRequest, RegisterRequest};
 use super::model::RegisterUserCommand;
 use super::service::AuthService;
@@ -15,6 +16,7 @@ use super::service::AuthService;
 )]
 pub async fn register(Json(req): Json<RegisterRequest>) -> Result<&'static str, String> {
     // Validate request
+    req.validate().map_err(|e| e.to_string())?;
 
     // Construct command
     let command = RegisterUserCommand {
