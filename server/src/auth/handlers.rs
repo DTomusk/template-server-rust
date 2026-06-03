@@ -17,6 +17,7 @@ use super::{
         (status = 400, description = "Invalid request")
     )
 )]
+// Result is an enum that can be either Ok or Err
 pub async fn register(Json(req): Json<RegisterRequest>) -> Result<&'static str, AuthError> {
     // Validate request
     // validate returns ValidationErrors, we map that to a string for now
@@ -30,7 +31,9 @@ pub async fn register(Json(req): Json<RegisterRequest>) -> Result<&'static str, 
     };
 
     // Service has no state at the moment, so we can just instantiate here
-    let service = AuthService;
+    let service = AuthService {
+        user_repo: crate::repos::user_repo::UserRepo,
+    };
 
     // Call service method
     // ? says to return early if error

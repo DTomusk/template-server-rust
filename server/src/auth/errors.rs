@@ -14,6 +14,8 @@ pub enum AuthError {
     InvalidCredentials,
     #[error("Validation error: {0}")]
     ValidationError(String),
+    #[error("Repository error: {0}")]
+    RepositoryError(String),
     #[error("Internal server error")]
     InternalServerError,
 }
@@ -25,6 +27,7 @@ impl IntoResponse for AuthError {
             AuthError::UserAlreadyExists => (StatusCode::CONFLICT, self.to_string()),
             AuthError::InvalidCredentials => (StatusCode::UNAUTHORIZED, self.to_string()),
             AuthError::ValidationError(_) => (StatusCode::BAD_REQUEST, self.to_string()),
+            AuthError::RepositoryError(_) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
             AuthError::InternalServerError => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
         };
 
