@@ -1,5 +1,5 @@
 pub mod router;
-mod dto;
-mod handlers;
+pub mod dto;
+pub mod handlers;
 
 pub use router::router;

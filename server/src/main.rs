@@ -4,6 +4,7 @@ mod app;
 mod auth;
 mod config;
 mod feature;
+mod openapi;
 
 // tokio multithreaded runtime needs to be enabled, use full features for simplicity
 #[tokio::main]
