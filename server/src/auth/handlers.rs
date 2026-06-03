@@ -1,5 +1,7 @@
 use axum::Json;
 use super::dto::{LoginRequest, RegisterRequest};
+use super::model::RegisterUserCommand;
+use super::service::AuthService;
 
 #[utoipa::path(
     post,
@@ -11,8 +13,22 @@ use super::dto::{LoginRequest, RegisterRequest};
         (status = 400, description = "Invalid request")
     )
 )]
-pub async fn register(Json(_req): Json<RegisterRequest>) -> Json<&'static str> {
-    Json("register not implemented")
+pub async fn register(Json(req): Json<RegisterRequest>) -> Result<&'static str, String> {
+    // Validate request
+
+    // Construct command
+    let command = RegisterUserCommand {
+        username: req.username,
+        password: req.password,
+    };
+
+    // Service has no state at the moment, so we can just instantiate here
+    let service = AuthService;
+
+    // Call service method
+    service.register_user(command).await?;
+
+    Ok("user registered")
 }
 
 #[utoipa::path(
@@ -25,6 +41,6 @@ pub async fn register(Json(_req): Json<RegisterRequest>) -> Json<&'static str> {
         (status = 400, description = "Invalid request")
     )
 )]
-pub async fn login(Json(_req): Json<LoginRequest>) -> Json<&'static str> {
-    Json("login not implemented")
+pub async fn login(Json(_req): Json<LoginRequest>) -> Result<&'static str, String> {
+    Ok("login not implemented")
 }
