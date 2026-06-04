@@ -7,19 +7,20 @@ COPY Cargo.toml Cargo.lock ./
 
 # Create a dummy main.rs to build dependencies
 RUN mkdir src && echo "fn main() { println!(\"Hello, world!\"); }" > src/main.rs
-RUN cargo build --release
+RUN cargo build
 
 # Now copy the actual source code and build the application
 COPY src ./src
 # Use touch to uncache main.rs
-RUN touch src/main.rs && cargo build --release --bin server
+# Run without --release for faster builds during development
+RUN touch src/main.rs && cargo build --bin server
 
 # Runtime
 FROM debian:bookworm-slim
 
 WORKDIR /app
 
-COPY --from=builder /app/target/release/server .
+COPY --from=builder /app/target/debug/server .
 
 EXPOSE 8080
 

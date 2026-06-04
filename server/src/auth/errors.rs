@@ -15,7 +15,7 @@ pub enum AuthError {
     #[error("Validation error: {0}")]
     ValidationError(String),
     #[error("Repository error: {0}")]
-    RepositoryError(String),
+    RepositoryError(sqlx::Error),
     #[error("Internal server error")]
     InternalServerError,
 }

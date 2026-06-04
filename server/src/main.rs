@@ -15,6 +15,7 @@ mod config;
 mod feature;
 mod openapi;
 mod repos;
+mod user;
 
 // tokio multithreaded runtime needs to be enabled, use full features for simplicity
 #[tokio::main]
@@ -56,5 +57,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     axum::serve(listener, app).await?;
 
+    // Note: no semicolon -> expression (not statement)
     Ok(())
 }

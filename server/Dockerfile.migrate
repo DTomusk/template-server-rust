@@ -5,11 +5,11 @@ COPY Cargo.toml Cargo.lock ./
 COPY src ./src
 COPY migrations ./migrations
 
-RUN cargo build --release --bin migrate
+RUN cargo build --bin migrate
 
 FROM debian:bookworm-slim
 
 WORKDIR /app
-COPY --from=builder /app/target/release/migrate .
+COPY --from=builder /app/target/debug/migrate .
 
 CMD ["./migrate"]
