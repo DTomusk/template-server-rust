@@ -4,12 +4,14 @@ use std::env;
 pub struct Config {
     pub port: u16,
     pub database_url: String,
+    pub jwt_secret: String,
 }
 
 #[derive(Debug)]
 pub enum ConfigError {
     InvalidPort(std::num::ParseIntError),
     MissingDatabaseUrl,
+    MissingJwtSecret,
 }
 
 impl std::fmt::Display for ConfigError {
@@ -17,6 +19,7 @@ impl std::fmt::Display for ConfigError {
         match self {
             Self::InvalidPort(_) => write!(f, "PORT must be a valid u16"),
             Self::MissingDatabaseUrl => write!(f, "DATABASE_URL must be set"),
+            Self::MissingJwtSecret => write!(f, "JWT_SECRET must be set"),
         }
     }
 }
@@ -26,6 +29,7 @@ impl std::error::Error for ConfigError {
         match self {
             Self::InvalidPort(err) => Some(err),
             Self::MissingDatabaseUrl => None,
+            Self::MissingJwtSecret => None,
         }
     }
 }
@@ -40,6 +44,8 @@ impl Config {
             .map_err(ConfigError::InvalidPort)?;
         let database_url = env::var("DATABASE_URL")
             .map_err(|_| ConfigError::MissingDatabaseUrl)?;
-        Ok(Self { port, database_url })
+        let jwt_secret = env::var("JWT_SECRET")
+            .map_err(|_| ConfigError::MissingJwtSecret)?;
+        Ok(Self { port, database_url, jwt_secret })
     }
 }

@@ -1,6 +1,7 @@
 pub mod dto;
 mod errors;
 pub mod handlers;
+mod jwt;
 pub mod model;
 mod password;
 pub mod router;

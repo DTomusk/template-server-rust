@@ -21,7 +21,7 @@ use crate::app_state::AppState;
 pub async fn register(
     State(app_state): State<AppState>,
     Json(req): Json<RegisterRequest>,
-) -> Result<&'static str, AuthError> {
+) -> Result<String, AuthError> {
     // Validate request
     // validate returns ValidationErrors, we map that to a string for now
     // if no error, simply continue
@@ -35,9 +35,9 @@ pub async fn register(
 
     // Call service method
     // ? says to return early if error
-    app_state.auth_service.register_user(command).await?;
+    let token = app_state.auth_service.register_user(command).await?;
 
-    Ok("user registered")
+    Ok(token)
 }
 
 #[utoipa::path(

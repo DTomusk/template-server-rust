@@ -16,6 +16,8 @@ pub enum AuthError {
     ValidationError(String),
     #[error("Repository error: {0}")]
     RepositoryError(sqlx::Error),
+    #[error("Token generation error: {0}")]
+    TokenGenerationError(jsonwebtoken::errors::Error),
     #[error("Internal server error")]
     InternalServerError,
 }
@@ -28,6 +30,7 @@ impl IntoResponse for AuthError {
             AuthError::InvalidCredentials => (StatusCode::UNAUTHORIZED, self.to_string()),
             AuthError::ValidationError(_) => (StatusCode::BAD_REQUEST, self.to_string()),
             AuthError::RepositoryError(_) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
+            AuthError::TokenGenerationError(_) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
             AuthError::InternalServerError => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
         };
 
