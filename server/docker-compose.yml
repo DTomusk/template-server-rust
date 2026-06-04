@@ -45,8 +45,8 @@ services:
     ports:
       - "${HOST_PORT:-8080}:8080"
     depends_on:
-      migrate:
-        condition: service_completed_successfully
+      db:
+        condition: service_healthy
 
 volumes:
   server_db_data:

@@ -1,4 +1,8 @@
-use super::{errors::AuthError, model::RegisterUserCommand};
+use super::{
+    errors::AuthError, 
+    model::RegisterUserCommand, 
+    password::hash_password,
+};
 use crate::repos::user_repo::UserRepo;
 use crate::user::model::User;
 
@@ -24,7 +28,7 @@ impl AuthService {
         }
         let user = User::new(
             command.username.clone(), 
-            command.password.clone(), // TODO: hash password
+            hash_password(&command.password),
         );
         self.user_repo
             .create_user(&user)
