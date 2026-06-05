@@ -19,6 +19,7 @@ pub struct Claims {
 }
 
 // id here matches Claims sub type, consider making uuid
+#[derive(Debug, Clone)]
 pub struct AuthUser {
     pub id: String,
 }
