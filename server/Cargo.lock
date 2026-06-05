@@ -2073,7 +2073,6 @@ dependencies = [
  "axum",
  "chrono",
  "dotenvy",
- "governor",
  "jsonwebtoken",
  "serde",
  "serde_json",
