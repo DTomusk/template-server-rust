@@ -18,8 +18,6 @@ pub enum AuthError {
     RepositoryError(sqlx::Error),
     #[error("Token generation error: {0}")]
     TokenGenerationError(jsonwebtoken::errors::Error),
-    #[error("Internal server error")]
-    InternalServerError,
 }
 
 // Required to be a valid axum handler return type
@@ -31,7 +29,6 @@ impl IntoResponse for AuthError {
             AuthError::ValidationError(_) => (StatusCode::BAD_REQUEST, self.to_string()),
             AuthError::RepositoryError(_) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
             AuthError::TokenGenerationError(_) => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
-            AuthError::InternalServerError => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
         };
 
         let body = Json(json!({ "error": error_message }));

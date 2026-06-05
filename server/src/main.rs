@@ -41,7 +41,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let user_repo = UserRepo::new(db_pool.clone());
 
     let auth_service = Arc::new(
-        AuthService::new(user_repo, config.jwt_secret.clone())
+        AuthService::new(user_repo, config.jwt_secret.clone(), config.jwt_expiration_minutes)
     );
 
     let app_state = AppState {

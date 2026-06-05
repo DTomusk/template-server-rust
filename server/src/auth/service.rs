@@ -1,19 +1,24 @@
 use super::{
     errors::AuthError, 
-    model::RegisterUserCommand, 
-    password::hash_password,
+    model::{RegisterUserCommand, LoginUserCommand}, 
+    password::{hash_password, verify_password},
 };
 use crate::repos::user_repo::UserRepo;
 use crate::user::model::User;
 
 pub struct AuthService {
     pub user_repo: UserRepo,
-    jwt_secret: String
+    jwt_secret: String,
+    jwt_expiration_minutes: i64,
 }
 
 impl AuthService {
-    pub fn new(user_repo: UserRepo, jwt_secret: String) -> Self {
-        Self { user_repo, jwt_secret }
+    pub fn new(
+        user_repo: UserRepo, 
+        jwt_secret: String, 
+        jwt_expiration_minutes: i64,
+    ) -> Self {
+        Self { user_repo, jwt_secret, jwt_expiration_minutes }
     }
     pub async fn register_user(
         &self,
@@ -39,7 +44,28 @@ impl AuthService {
         let token = crate::auth::jwt::generate_token(
             &user.id.to_string(), 
             &self.jwt_secret, 
-            15, // 15 minutes
+            self.jwt_expiration_minutes,
+        ).map_err(|e| AuthError::TokenGenerationError(e))?;
+        Ok(token)
+    }
+    pub async fn login_user(
+        &self,
+        command: LoginUserCommand,
+    ) -> Result<String, AuthError> {
+        let user = self.user_repo
+            .get_user_by_username(&command.username)
+            .await
+            .map_err(|e| AuthError::RepositoryError(e))?
+            .ok_or(AuthError::InvalidCredentials)?;
+        
+        if !verify_password(&command.password, &user.password_hash) {
+            return Err(AuthError::InvalidCredentials);
+        }
+
+        let token = crate::auth::jwt::generate_token(
+            &user.id.to_string(), 
+            &self.jwt_secret, 
+            self.jwt_expiration_minutes,
         ).map_err(|e| AuthError::TokenGenerationError(e))?;
         Ok(token)
     }

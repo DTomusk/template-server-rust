@@ -5,6 +5,7 @@ pub struct Config {
     pub port: u16,
     pub database_url: String,
     pub jwt_secret: String,
+    pub jwt_expiration_minutes: i64,
 }
 
 #[derive(Debug)]
@@ -12,6 +13,7 @@ pub enum ConfigError {
     InvalidPort(std::num::ParseIntError),
     MissingDatabaseUrl,
     MissingJwtSecret,
+    MissingJwtExpirationMinutes,
 }
 
 impl std::fmt::Display for ConfigError {
@@ -20,6 +22,7 @@ impl std::fmt::Display for ConfigError {
             Self::InvalidPort(_) => write!(f, "PORT must be a valid u16"),
             Self::MissingDatabaseUrl => write!(f, "DATABASE_URL must be set"),
             Self::MissingJwtSecret => write!(f, "JWT_SECRET must be set"),
+            Self::MissingJwtExpirationMinutes => write!(f, "JWT_EXPIRATION_MINUTES must be set"),
         }
     }
 }
@@ -30,6 +33,7 @@ impl std::error::Error for ConfigError {
             Self::InvalidPort(err) => Some(err),
             Self::MissingDatabaseUrl => None,
             Self::MissingJwtSecret => None,
+            Self::MissingJwtExpirationMinutes => None,
         }
     }
 }
@@ -46,6 +50,10 @@ impl Config {
             .map_err(|_| ConfigError::MissingDatabaseUrl)?;
         let jwt_secret = env::var("JWT_SECRET")
             .map_err(|_| ConfigError::MissingJwtSecret)?;
-        Ok(Self { port, database_url, jwt_secret })
+        let jwt_expiration_minutes = env::var("JWT_EXPIRATION_MINUTES")
+            .map_err(|_| ConfigError::MissingJwtExpirationMinutes)?
+            .parse()
+            .map_err(|e| ConfigError::InvalidPort(e))?; // reuse InvalidPort error for simplicity
+        Ok(Self { port, database_url, jwt_secret, jwt_expiration_minutes })
     }
 }

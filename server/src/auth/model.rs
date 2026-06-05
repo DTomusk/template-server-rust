@@ -6,6 +6,12 @@ pub struct RegisterUserCommand {
     pub password: String,
 }
 
+#[derive(Debug)]
+pub struct LoginUserCommand {
+    pub username: String,
+    pub password: String,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
     pub sub: String,

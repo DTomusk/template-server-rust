@@ -1,11 +1,11 @@
 use axum::{Json, extract::State};
 use validator::Validate;
 use super::{
-    dto::{LoginRequest, RegisterRequest}, 
-    model::RegisterUserCommand, 
+    dto::{LoginRequest, RegisterRequest, TokenResponse}, 
+    model::{RegisterUserCommand, LoginUserCommand},
     errors::AuthError,
 };
-use crate::{app_state::AppState, auth::dto::TokenResponse};
+use crate::app_state::AppState;
 
 #[utoipa::path(
     post,
@@ -51,8 +51,15 @@ pub async fn register(
     )
 )]
 pub async fn login(
-    State(_app_state): State<AppState>,
-    Json(_req): Json<LoginRequest>
-) -> Result<&'static str, String> {
-    Ok("login not implemented")
+    State(app_state): State<AppState>,
+    Json(req): Json<LoginRequest>
+) -> Result<Json<TokenResponse>, AuthError> {
+    // don't worry about validating login request for now
+    let command = LoginUserCommand {
+        username: req.username,
+        password: req.password,
+    };
+
+    let token = app_state.auth_service.login_user(command).await?;
+    Ok(Json(TokenResponse { token }))
 }
