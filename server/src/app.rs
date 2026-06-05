@@ -8,9 +8,20 @@ use crate::{auth, feature};
 use crate::openapi::ApiDoc;
 
 pub fn build(app_state: AppState) -> Router {
+    let public = Router::new()
+        .merge(feature::router::public_router())
+        .layer(public_rate_limit());
+
+    let protected = Router::new()
+        .merge(feature::router::protected_router())
+        .layer(auth_rate_limit());
+
+    let auth = auth::router().layer(auth_rate_limit());
+
     Router::new()
-        .nest("/auth", auth::router().layer(auth_rate_limit()))
-        .nest("/feature", feature::router().layer(public_rate_limit()))
+        .merge(public)
+        .merge(protected)
+        .merge(auth)
         .merge(
             SwaggerUi::new("/docs")
                 .url("/api-docs/openapi.json", ApiDoc::openapi())
