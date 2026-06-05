@@ -1,4 +1,3 @@
 pub mod router;
-mod handlers;
-
+pub mod handlers;
 pub use router::router;

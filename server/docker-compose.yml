@@ -1,4 +1,39 @@
 services:
+  db: 
+    image: postgres:18.1
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: server_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - server_db_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d server_db"]
+      interval: 10s
+      retries: 5
+
+  pgAdmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+  migrate:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.migrate
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+
   api:
     build:
       context: .
@@ -9,3 +44,9 @@ services:
       PORT: 8080
     ports:
       - "${HOST_PORT:-8080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  server_db_data:
