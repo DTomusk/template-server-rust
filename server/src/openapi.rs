@@ -15,6 +15,7 @@ use crate::auth::dto::{LoginRequest, RegisterRequest, TokenResponse};
     tags(
         (name = "auth", description = "Authentication related endpoints")
     ),
+    // required for auth button and to add security for specific routes
     modifiers(&SecurityAddon)
 )]
 pub struct ApiDoc;

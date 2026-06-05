@@ -15,6 +15,8 @@ pub async fn get_feature(
     Ok("feature response")
 }
 
+// Example of a protected route that requires authentication
+// AuthUser in the parameters triggers the auth extractor
 #[utoipa::path(
     get,
     path = "/feature/protected",

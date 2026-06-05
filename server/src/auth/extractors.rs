@@ -10,6 +10,9 @@ use super::{
 
 use crate::{app_state::AppState};
 
+// If a handler method includes AuthUser
+// then this will run to extract it 
+// this essentially protects routes by requiring a valid token to access them
 impl FromRequestParts<AppState> for AuthUser {
     type Rejection = AuthError;
 
