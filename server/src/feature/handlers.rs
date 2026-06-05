@@ -22,7 +22,10 @@ pub async fn get_feature(
     responses(
         (status = 200, description = "Protected feature accessed successfully"),
         (status = 401, description = "Unauthorized")
-    )
+    ),
+    security(
+        ("bearerAuth" = [])
+    ),
 )]
 pub async fn get_protected_feature(
     State(_app_state): State<AppState>,
