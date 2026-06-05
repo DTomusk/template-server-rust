@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{net::SocketAddr, sync::Arc};
 use sqlx::postgres::PgPoolOptions;
 use tracing::info;
 
@@ -13,6 +13,7 @@ mod app_state;
 mod auth;
 mod config;
 mod feature;
+mod middleware;
 mod openapi;
 mod repos;
 mod user;
@@ -55,7 +56,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     info!(%addr, "server is starting");
 
-    axum::serve(listener, app)
+    axum::serve(
+        listener, 
+        app.into_make_service_with_connect_info::<SocketAddr>())
         .with_graceful_shutdown(shutdown_signal())
         .await?;
 
