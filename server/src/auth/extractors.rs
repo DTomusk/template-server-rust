@@ -2,6 +2,7 @@ use axum::{
     extract::FromRequestParts,
     http::request::Parts,
 };
+use tower_governor::{GovernorError, key_extractor::KeyExtractor};
 
 use super::{
     errors::AuthError,
@@ -12,29 +13,32 @@ use crate::{app_state::AppState};
 
 // If a handler method includes AuthUser
 // then this will run to extract it 
-// this essentially protects routes by requiring a valid token to access them
+// Note: ensure auth middleware is run before extractor
 impl FromRequestParts<AppState> for AuthUser {
     type Rejection = AuthError;
 
     async fn from_request_parts(
-        parts: &mut Parts,
-        state: &AppState,
+        req: &mut Parts, 
+        _state: &AppState
     ) -> Result<Self, Self::Rejection>
     {
-        let token = parts
-            .headers
-            .get("Authorization")
-            .and_then(|h| h.to_str().ok())
-            .and_then(|s| s.strip_prefix("Bearer "))
-            .ok_or(AuthError::InvalidCredentials)?;
+        req.extensions
+            .get::<AuthUser>()
+            .cloned()
+            .ok_or(AuthError::Unauthorized)
+    }
+}
 
-        let claims = state
-            .auth_service
-            .verify_token(token)
-            .map_err(|_| AuthError::Unauthorized)?;
+#[derive(Clone)]
+pub struct UserIdExtractor;
 
-        Ok(AuthUser { 
-            id: claims.sub,
-        })
+impl KeyExtractor for UserIdExtractor { 
+    type Key = String;
+    
+    fn extract<T>(&self, req: &axum::http::Request<T>) -> Result<String, GovernorError> {
+        req.extensions()
+            .get::<AuthUser>()
+            .map(|u| u.id.to_string())
+            .ok_or_else(|| GovernorError::UnableToExtractKey)
     }
 }
