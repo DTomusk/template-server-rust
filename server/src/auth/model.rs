@@ -17,3 +17,8 @@ pub struct Claims {
     pub sub: String,
     pub exp: usize,
 }
+
+// id here matches Claims sub type, consider making uuid
+pub struct AuthUser {
+    pub id: String,
+}

@@ -1,5 +1,6 @@
 use super::{
     errors::AuthError, 
+    jwt,
     model::{RegisterUserCommand, LoginUserCommand}, 
     password::{hash_password, verify_password},
 };
@@ -62,11 +63,16 @@ impl AuthService {
             return Err(AuthError::InvalidCredentials);
         }
 
-        let token = crate::auth::jwt::generate_token(
+        let token = jwt::generate_token(
             &user.id.to_string(), 
             &self.jwt_secret, 
             self.jwt_expiration_minutes,
         ).map_err(|e| AuthError::TokenGenerationError(e))?;
         Ok(token)
+    }
+
+    pub fn verify_token(&self, token: &str) -> Result<crate::auth::model::Claims, AuthError> {
+        jwt::verify_jwt(token, &self.jwt_secret)
+            .map_err(|_| AuthError::Unauthorized)
     }
 }

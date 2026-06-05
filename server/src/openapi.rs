@@ -5,7 +5,9 @@ use crate::auth::dto::{LoginRequest, RegisterRequest, TokenResponse};
 #[openapi(
     paths(
         crate::auth::handlers::register,
-        crate::auth::handlers::login
+        crate::auth::handlers::login,
+        crate::feature::handlers::get_feature,
+        crate::feature::handlers::get_protected_feature
     ),
     components(
         schemas(LoginRequest, RegisterRequest, TokenResponse)

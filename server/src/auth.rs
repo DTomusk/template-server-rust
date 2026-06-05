@@ -1,5 +1,6 @@
 pub mod dto;
 mod errors;
+pub mod extractors;
 pub mod handlers;
 mod jwt;
 pub mod model;
