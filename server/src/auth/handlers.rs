@@ -5,7 +5,7 @@ use super::{
     model::RegisterUserCommand, 
     errors::AuthError,
 };
-use crate::app_state::AppState;
+use crate::{app_state::AppState, auth::dto::TokenResponse};
 
 #[utoipa::path(
     post,
@@ -13,7 +13,7 @@ use crate::app_state::AppState;
     tag = "auth",
     request_body = RegisterRequest,
     responses(
-        (status = 200, description = "User registered successfully"),
+        (status = 200, body = TokenResponse, description = "User registered successfully"),
         (status = 400, description = "Invalid request")
     )
 )]
@@ -21,7 +21,7 @@ use crate::app_state::AppState;
 pub async fn register(
     State(app_state): State<AppState>,
     Json(req): Json<RegisterRequest>,
-) -> Result<String, AuthError> {
+) -> Result<Json<TokenResponse>, AuthError> {
     // Validate request
     // validate returns ValidationErrors, we map that to a string for now
     // if no error, simply continue
@@ -37,7 +37,7 @@ pub async fn register(
     // ? says to return early if error
     let token = app_state.auth_service.register_user(command).await?;
 
-    Ok(token)
+    Ok(Json(TokenResponse { token }))
 }
 
 #[utoipa::path(

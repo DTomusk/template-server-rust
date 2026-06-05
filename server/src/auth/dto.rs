@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use validator::Validate;
 use utoipa::ToSchema;
 
@@ -14,4 +14,9 @@ pub struct RegisterRequest {
 pub struct LoginRequest {
     pub username: String,
     pub password: String,
+}
+
+#[derive(Serialize, ToSchema)]
+pub struct TokenResponse {
+    pub token: String,
 }

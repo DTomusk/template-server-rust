@@ -13,14 +13,14 @@ RUN cargo build
 COPY src ./src
 # Use touch to uncache main.rs
 # Run without --release for faster builds during development
-RUN touch src/main.rs && cargo build --bin server
+RUN touch src/main.rs && cargo build --release --bin server
 
 # Runtime
 FROM debian:bookworm-slim
 
 WORKDIR /app
 
-COPY --from=builder /app/target/debug/server .
+COPY --from=builder /app/target/release/server .
 
 EXPOSE 8080
 

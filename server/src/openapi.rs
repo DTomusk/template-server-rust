@@ -1,5 +1,5 @@
 use utoipa::OpenApi;
-use crate::auth::dto::{LoginRequest, RegisterRequest};
+use crate::auth::dto::{LoginRequest, RegisterRequest, TokenResponse};
 
 #[derive(OpenApi)]
 #[openapi(
@@ -8,7 +8,7 @@ use crate::auth::dto::{LoginRequest, RegisterRequest};
         crate::auth::handlers::login
     ),
     components(
-        schemas(LoginRequest, RegisterRequest)
+        schemas(LoginRequest, RegisterRequest, TokenResponse)
     ),
     tags(
         (name = "auth", description = "Authentication related endpoints")
